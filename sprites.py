@@ -2,6 +2,7 @@
 import pygame as pg
 from settings import *
 from pygame.sprite import Sprite
+from utils import *
  
 from os import path
 
@@ -38,8 +39,11 @@ class Player(Sprite):
         self.groups = game.all_sprites
         Sprite.__init__(self, self.groups)
         self.game = game
+        self.spritesheet = SpriteSheet(path.join(self.game.img_dir, 'sprite_sheet.png'))
         self.image = pg.Surface((TILESIZE, TILESIZE))
-        self.image.fill(WHITE)
+        self.image = self.spritesheet.get_image(0, 0, TILESIZE, TILESIZE)
+        self.image.set_colorkey(BLACK)
+        # self.image.fill(WHITE)
         self.rect = self.image.get_rect()
         self.hit_rect = PLAYER_HIT_RECT
         self.vel = vec(0,0)

@@ -14,3 +14,14 @@ class Map:
         self.width = self.tilewidth * TILESIZE
         self.height = self.tileheight * TILESIZE
         print('map instantiated')
+
+class SpriteSheet:
+    def __init__(self, filename):
+        self.sheet = pg.image.load(filename).convert()
+
+    def get_image(self, x, y, width, height):
+        image = pg.Surface((width, height))
+        image.blit(self.sheet, (0, 0), (x, y, width, height))
+        new_image = pg.transform.scale(image, (width, height ))
+        image = new_image
+        return new_image

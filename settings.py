@@ -11,6 +11,12 @@ BGCOLOR = (255, 100,100)
 WHITE = (255, 255, 255)
 GREEN = (0, 255, 0)
 RED = (255, 0, 0)
+WHITE = (255, 255, 255)
+BLACK = (0, 0, 0)
+GRAY = (128, 128, 128)
+SILVER = (192, 192, 192)
+RED = (255, 0, 0)
+MAROON = (128, 0, 0)
 
 #player settings
 PLAYER_SPEED = 300
