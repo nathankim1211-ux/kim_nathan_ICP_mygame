@@ -49,6 +49,7 @@ Output: Graphics - things are drawn, sounds: jump, power, walking, haptics
 '''
  
 #game engine starting
+
 class Game:
     def __init__(self):
         pg.init()
@@ -59,12 +60,11 @@ class Game:
         self.running = True
         self.playing = True
         self.clock = pg.time.Clock()
-        pg.time.get_ticks()
 
     def load_data(self, map):
         self.game_dir = path.dirname(__file__)
         self.img_dir = path.join(self.game_dir, 'images')
-        self.snd_dir = path.join(self.game_dir, 'sounds')
+        self.snd_dir = path.join(self.game_dir, 'audio')
         self.map = Map(path.join(self.game_dir, map))
 
     def new(self):
@@ -74,18 +74,20 @@ class Game:
         self.all_walls = pg.sprite.Group()
         self.all_mobs = pg.sprite.Group()
 
-       
+
         for row, tiles in enumerate(self.map.data):
             for col, tile, in enumerate(tiles):
                 if tile == '1':
                     Wall(self, col, row)
                 if tile == 'M':
                     pass
+                # if tile == 'P':
+                #     Player(self, col, row)
         for row, tiles in enumerate(self.map.data):
             for col, tile, in enumerate(tiles):
                 if tile == 'P':
                     Player(self, col, row)
- 
+
     def run(self):
         self.playing = True
         while self.playing:
@@ -93,27 +95,25 @@ class Game:
             self.events()
             self.update()
             self.draw()
-            #print(pg.time.get_ticks())
- 
-           
+
     def events(self):
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 if self.playing:
                     self.playing = False
                 self.running = False
- 
+
     def update(self):
         self.all_sprites.update()
- 
+        
     def draw(self):
         self.screen.fill(BGCOLOR)
         self.all_sprites.draw(self.screen)
         pg.display.flip()
- 
+
 if __name__ == "__main__":
     g = Game()
- 
+
 while g.running:
     g.new()
     g.run()
