@@ -7,6 +7,8 @@ from os import path
 
 vec = pg.math.Vector2
 
+#adding collisions
+
 def collide_hit_rect(one, two):
     return one.hit_rect.colliderect(two.rect)
 
@@ -37,6 +39,7 @@ def collide_with_walls(sprite, group, dir):
             sprite.vel.y = 0
             sprite.hit_rect.centery = sprite.pos.y
 
+#added the class player
 class Player(Sprite):
     def __init__(self, game, x, y):
         self.groups = game.all_sprites
@@ -64,6 +67,7 @@ class Player(Sprite):
         if keys[pg.K_LEFT] or keys[pg.K_a]:
             self.vel.x = -PLAYER_SPEED
         if keys[pg.K_RIGHT] or keys[pg.K_d]:
+            self.dir = "right"
             self.vel.x = PLAYER_SPEED
         if keys[pg.K_UP] or keys[pg.K_w]:
             self.vel.y = -PLAYER_SPEED
@@ -97,6 +101,7 @@ class Player(Sprite):
         collide_with_walls(self, self.game.all_walls, 'y')
         self.rect.center = self.hit_rect.center
 
+#adding wall
     
 
 class Wall(Sprite):
@@ -115,12 +120,16 @@ class Wall(Sprite):
         # print("wall initialized")
         # print(self.rect.x)
         # print(self.rect.y)
-        
+
+# adding mobs
+
 class Mob(Sprite):
     def __init__(self, game, x, y):
         self.groups = game.all_sprites, game.all_mobs
         Sprite.__init__(self, self.groups)
         self.game = game
+        self.spritesheet = Spritesheet(path.join(self.game.img_dir, "sprite_sheet.png"))
+        self.load_images()
         self.image = pg.Surface((TILESIZE, TILESIZE))
         self.image.fill(RED)
         self.rect = self.image.get_rect()
@@ -134,6 +143,31 @@ class Mob(Sprite):
         print("mob initialized")
         print(self.rect.x)
         print(self.rect.y)
+
+        def animate(self):
+                # use the time element to get now
+                now = pg.time.get_ticks()
+                if now - self.last_update > 350:
+                    self.last_update = now
+                    self.current_frame = (self.current_frame + 1) % len(self.idle_frames)
+                    bottom = self.rect.bottom
+                    self.image = self.idle_frames[self.current_frame]
+                    self.rect = self.image.get_rect()
+                    self.rect.bottom = bottom
+        def load_images(self):
+                self.idle_frames = [self.spritesheet.get_image(0,0,TILESIZE * 2, TILESIZE *2),
+                                    self.spritesheet.get_image(TILESIZE*2,0,TILESIZE*2, TILESIZE*2)
+                                    ]
+        def update(self):
+                self.get_keys()
+                self.animate()
+                self.rect.center = self.pos
+                self.pos += self.vel * self.game.dt
+                self.hit_rect.centerx = self.pos.x
+                collide_with_walls(self, self.game.all_walls, 'x')
+                self.hit_rect.centery = self.pos.y
+                collide_with_walls(self, self.game.all_walls, 'y')
+                self.rect.center = self.hit_rect.center
         
     def update(self):
         # thanks pygame
