@@ -12,23 +12,6 @@ from sprites import *
 from settings import *
 
 from utils import *
-
-# This file was created by: Raiden Ho
-# Code inspired by game dev Chris Bradfield who was inspired by Notch
- 
- 
-#imports python & changes abbreviation to pg
-import pygame as pg
-from os import path
- 
-#imports sprites
-from sprites import *
- 
-#imports settings
-from settings import *
- 
-#imports utils
-from utils import *
  
 '''
 Why are wer making game a class?
@@ -45,13 +28,17 @@ Process: cursor position, position of the player, score, enemy position, velocit
 aim in FPS,
  
 Output: Graphics - things are drawn, sounds: jump, power, walking, haptics
+
+GOALS: 
+
+RULES
+
+FEEDBACK:
+
+FREEDOM:
  
 '''
- 
-#game engine starting
-
-#making the game class
-
+# creating the class game
 class Game:
     def __init__(self):
         pg.init()
@@ -63,33 +50,58 @@ class Game:
         self.playing = True
         self.clock = pg.time.Clock()
 
+    # adding the images and audio
+
     def load_data(self, map):
         self.game_dir = path.dirname(__file__)
+        self.game_save_file = path.join(self.game_dir, "highscore.txt")
+
         self.img_dir = path.join(self.game_dir, 'images')
+        # sound handling
         self.snd_dir = path.join(self.game_dir, 'audio')
+        self.pickup_snd = pg.mixer.Sound(path.join(self.snd_dir, "pickup.wav"))
         self.map = Map(path.join(self.game_dir, map))
 
+        try:
+            with open(self.game_save_file, 'x', encoding="utf-8") as file:
+                file.write("hello world!")
+            print("file created successfully!")
+
+        except FileExistsError:
+            print("File already exists")
+
+        with open(self.game_save_file, 'r') as file:
+            try:
+                self.high_score = int(file.read())
+            except:
+                # self.high_score = 0
+                print("high score not read...")
+
     def new(self):
+        #loading the map and all of the sprites
         self.load_data('level1.txt')
         print(self.map.data)
         self.all_sprites = pg.sprite.Group()
         self.all_walls = pg.sprite.Group()
+        self.all_coins = pg.sprite.Group()
         self.all_mobs = pg.sprite.Group()
 
 
+    #enumerating the rows and columns of the map to create all of the walls, mobs, and coins
         for row, tiles in enumerate(self.map.data):
             for col, tile, in enumerate(tiles):
                 if tile == '1':
                     Wall(self, col, row)
                 if tile == 'M':
-                    pass
-                # if tile == 'P':
-                #     Player(self, col, row)
+                    Mob(self, col, row)
+                if tile == 'C':
+                    Coin(self, col, row)
         for row, tiles in enumerate(self.map.data):
             for col, tile, in enumerate(tiles):
                 if tile == 'P':
-                    Player(self, col, row)
-
+                    self.player = Player(self, col, row)
+        pg.mixer.music.load(path.join(self.snd_dir, "Juhani Junkala_Stage 1.ogg"))
+        pg.mixer.music.play(loops=-1)
     def run(self):
         self.playing = True
         while self.playing:
@@ -98,12 +110,17 @@ class Game:
             self.update()
             self.draw()
 
+    #seeing if the user has quit the game or not
     def events(self):
         for event in pg.event.get():
             if event.type == pg.QUIT:
+                with open(path.join(self.gar_dir, self.game_save_file), 'w') as f:
+                    f.write(str(self.score))
+
                 if self.playing:
                     self.playing = False
                 self.running = False
+    #drawing text for fps and coin
     def draw_text(self, text, size, color, x, y):
         font_name = pg.font.match_font('arial')
         font = pg.font.Font(font_name, size)
@@ -111,16 +128,23 @@ class Game:
         text_rect = text_surface.get_rect()
         text_rect.midtop = (x,y)
         self.screen.blit(text_surface, text_rect)
+    #updating the screen and all of the sprites
     def update(self):
         self.all_sprites.update()
 
+
+    #drawing the screen and all of the sprites
     def draw(self):
         # this order matters: the first things are on the bottom because they are the firs to be drawn
         # the last lines in this method are drawn on top or last
         self.screen.fill(BGCOLOR)
         self.all_sprites.draw(self.screen)
-        self.draw_text("Frames per second: " + str(floor(1/self.dt) ), 24, WHITE, WIDTH/2, HEIGHT/4)
+        self.draw_text(f"Frames per second:{1/self.dt}", 24, WHITE, WIDTH/2, HEIGHT/4)
+        self.draw_text(f"Coins:{self.player.coins}", 24, WHITE, WIDTH/2, HEIGHT/7)
+        self.draw_text(f"Score:{self.score}", 24, WHITE, WIDTH/2, HEIGHT/8)
+        self.draw_text(f"High Score:{self.high_score}", 24, WHITE, WIDTH/2, HEIGHT/12)
         pg.display.flip()
+
 
 if __name__ == "__main__":
     g = Game()

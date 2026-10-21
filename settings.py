@@ -11,6 +11,7 @@ WHITE = (255,255,255)
 GREEN = (0,255,0)
 RED = (255,0,0)
 WHITE   = (255, 255, 255)
+NEARLY_BLACK   = (1, 1, 1)
 BLACK   = (0, 0, 0)
 GRAY    = (128, 128, 128)
 SILVER  = (192, 192, 192)
@@ -38,3 +39,6 @@ BEIGE   = (245, 245, 220)
 # player settings
 PLAYER_SPEED = 300
 PLAYER_HIT_RECT = pg.Rect(0,0, TILESIZE-5, TILESIZE-5)
+
+# mob settings
+MOB_HIT_RECT = pg.Rect(0,0, TILESIZE-5, TILESIZE-5)
