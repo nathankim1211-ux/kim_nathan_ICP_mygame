@@ -1,3 +1,5 @@
+from random import randint
+
 import pygame as pg
 from settings import *
 from pygame.sprite import Sprite
@@ -105,6 +107,9 @@ class Player(Sprite):
         self.get_keys()
         hits = pg.sprite.spritecollide(self, self.game.all_coins, True)
         if hits:
+            #adding 100 particles when player collides with a coin
+            for i in range(100):
+                Particle(self.game, self.pos.x, self.pos.y)
             self.coins += 1
             self.game.pickup_snd.play()
             self.game.score += 1
@@ -150,6 +155,30 @@ class Coin(Sprite):
         self.rect.x = self.x
         self.rect.y = self.y
 
+class Particle(Sprite):
+    def __init__(self, game, x, y):
+        self.groups = game.all_sprites, game.all_particles
+        Sprite.__init__(self, self.groups)
+        self.game = game
+        self.image = pg.Surface((TILESIZE, TILESIZE))
+        self.image.fill(WHITE)
+        self.rect = self.image.get_rect()
+        self.vel = vec(randint(-180, 180), randint(-180, 180))
+        self.pos = vec(x, y)
+        self.speed = randint(0, 3)
+        self.cooldown = Cooldown()
+        self.cooldown.event_time = floor(pg.time.get_ticks()/1000)
+        print(self.pos.x)
+        print(self.pos.y)
+        print(str(len(self.game.all_particles)))
+
+    def update(self):
+        self.cooldown.ticking()
+
+        self.pos += self.vel * self.speed * self.game.dt
+    #killing the particle when cooldown is more than 1
+        if self.cooldown.delta > 1:
+            self.kill()
 
 
         

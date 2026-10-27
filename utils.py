@@ -2,6 +2,7 @@ import pygame as pg
 from settings import *
 from math import floor
 
+#adding map
 class Map:
     def __init__(self, filename):
         self.data = []
@@ -15,7 +16,7 @@ class Map:
         self.height = self.tileheight * TILESIZE
         print('map instantiated')
 
-
+#adding the spritesheet
 class Spritesheet:
     def __init__(self, filename):
         self.spritesheet = pg.image.load(filename).convert()
@@ -26,3 +27,15 @@ class Spritesheet:
         new_image = pg.transform.scale(image, (width, height))
         image = new_image
         return image
+    
+# adding a class for cooldown
+class Cooldown:
+    def __init__(self):
+        self.event_time = 0
+        self.current_time = 0
+        self.delta = 0
+    def ticking(self):
+        self.current_time = pg.time.get_ticks()
+        self.delta = self.current_time - self.event_time
+    def start(self):
+        self.event_time = pg.time.get_ticks()

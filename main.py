@@ -85,6 +85,7 @@ class Game:
         self.all_walls = pg.sprite.Group()
         self.all_coins = pg.sprite.Group()
         self.all_mobs = pg.sprite.Group()
+        self.all_particles = pg.sprite.Group()
 
 
     #enumerating the rows and columns of the map to create all of the walls, mobs, and coins
