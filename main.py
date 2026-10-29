@@ -49,6 +49,8 @@ class Game:
         self.running = True
         self.playing = True
         self.clock = pg.time.Clock()
+        self.score = 0
+        self.high_score = 0
 
     # adding the images and audio
 
@@ -59,7 +61,7 @@ class Game:
         self.img_dir = path.join(self.game_dir, 'images')
         # sound handling
         self.snd_dir = path.join(self.game_dir, 'audio')
-        self.pickup_snd = pg.mixer.Sound(path.join(self.snd_dir, "pickup.wav"))
+        self.pickup_snd = pg.mixer.Sound(path.join(self.snd_dir, "audio_pickup.wav"))
         self.map = Map(path.join(self.game_dir, map))
 
         try:
@@ -101,7 +103,7 @@ class Game:
             for col, tile, in enumerate(tiles):
                 if tile == 'P':
                     self.player = Player(self, col, row)
-        pg.mixer.music.load(path.join(self.snd_dir, "Juhani Junkala_Stage 1.ogg"))
+        pg.mixer.music.load(path.join(self.snd_dir, "bg.mp3"))
         pg.mixer.music.play(loops=-1)
     def run(self):
         self.playing = True
@@ -115,7 +117,7 @@ class Game:
     def events(self):
         for event in pg.event.get():
             if event.type == pg.QUIT:
-                with open(path.join(self.gar_dir, self.game_save_file), 'w') as f:
+                with open(path.join(self.game_dir, self.game_save_file), 'w') as f:
                     f.write(str(self.score))
 
                 if self.playing:

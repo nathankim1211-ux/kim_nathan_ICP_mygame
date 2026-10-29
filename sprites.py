@@ -55,31 +55,36 @@ class Player(Sprite):
         self.rect = self.image.get_rect()
         self.hit_rect = PLAYER_HIT_RECT
         self.vel = vec(0,0)
+        self.acc = vec(0,0)
         self.pos = vec(x*TILESIZE,y*TILESIZE)
         # animation stuff
         self.last_update = 0
         self.current_frame = 0
         self.dir = "none"
         self.coins = 0
+        self.jumping = False
         print('player instantiated')
         print(self.pos)
+
 #making the keys for player movement and the direction of the player
     def get_keys(self):
-        self.vel = vec(0,0)
+        # self.vel = vec(0,0)
         self.dir = "none"
         keys = pg.key.get_pressed()
         if keys[pg.K_LEFT] or keys[pg.K_a]:
-            self.vel.x = -PLAYER_SPEED
+            self.acc.x = -PLAYER_SPEED
         if keys[pg.K_RIGHT] or keys[pg.K_d]:
             self.dir = "right"
-            self.vel.x = PLAYER_SPEED
+            self.acc.x = PLAYER_SPEED
         if keys[pg.K_UP] or keys[pg.K_w]:
-            self.vel.y = -PLAYER_SPEED
+            self.acc.y = -PLAYER_SPEED
         if keys[pg.K_LEFT] or keys[pg.K_s]:
-            self.vel.y = PLAYER_SPEED
+            self.acc.y = PLAYER_SPEED
         # check to see if player is moving diagonal
         if self.vel.x != 0 and self.vel.y != 0:
             self.vel *= 0.7071
+    def jump(self):
+        pass
     #animation for the player
     def animate(self):
         # use the time element to get now
@@ -104,7 +109,15 @@ class Player(Sprite):
                             ]
     #updating the player position and checking for collisions with walls and coins
     def update(self):
+        self.acc = vec(0,0)
         self.get_keys()
+        self.animate()
+        self.acc.x +=self.vel.x * PLAYER_FRIC
+        self.acc.y +=self.vel.y * PLAYER_FRIC
+        self.vel += self.acc
+        self.rect
+        self.pos += self.vel + 0.5 * self.acc
+
         hits = pg.sprite.spritecollide(self, self.game.all_coins, True)
         if hits:
             #adding 100 particles when player collides with a coin
@@ -160,25 +173,28 @@ class Particle(Sprite):
         self.groups = game.all_sprites, game.all_particles
         Sprite.__init__(self, self.groups)
         self.game = game
-        self.image = pg.Surface((TILESIZE, TILESIZE))
+        self.image = pg.Surface((5, 5))
         self.image.fill(WHITE)
         self.rect = self.image.get_rect()
+        self.rect.center = (x, y)
         self.vel = vec(randint(-180, 180), randint(-180, 180))
         self.pos = vec(x, y)
-        self.speed = randint(0, 3)
+        self.speed = randint(1, 3)
         self.cooldown = Cooldown()
         self.cooldown.event_time = floor(pg.time.get_ticks()/1000)
-        print(self.pos.x)
-        print(self.pos.y)
-        print(str(len(self.game.all_particles)))
+        # print(self.pos.x)
+        # print(self.pos.y)
+        # print(str(len(self.game.all_particles)))
 
     def update(self):
         self.cooldown.ticking()
-
         self.pos += self.vel * self.speed * self.game.dt
     #killing the particle when cooldown is more than 1
         if self.cooldown.delta > 1:
             self.kill()
+            #goes and update the particles on to the screen
+        self.rect.x = self.pos.x
+        self.rect.y = self.pos.y
 
 
         
