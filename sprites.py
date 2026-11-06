@@ -80,12 +80,11 @@ class Player(Sprite):
             self.acc.y = -PLAYER_SPEED
         if keys[pg.K_LEFT] or keys[pg.K_s]:
             self.acc.y = PLAYER_SPEED
-        # check to see if player is moving diagonal
+        # check to see if player is moving diagonaly
+        if keys[pg.K_SPACE]:
+            self.jump()
         if self.vel.x != 0 and self.vel.y != 0:
             self.vel *= 0.7071
-    def jump(self):
-        pass
-    #animation for the player
     def animate(self):
         # use the time element to get now
         now = pg.time.get_ticks()
@@ -108,31 +107,50 @@ class Player(Sprite):
                             self.spritesheet.get_image(TILESIZE,0,TILESIZE, TILESIZE)
                             ]
     #updating the player position and checking for collisions with walls and coins
-    def update(self):
-        self.acc = vec(0,0)
-        self.get_keys()
-        self.animate()
-        self.acc.x +=self.vel.x * PLAYER_FRIC
-        self.acc.y +=self.vel.y * PLAYER_FRIC
-        self.vel += self.acc
-        self.rect
-        self.pos += self.vel + 0.5 * self.acc
+    def jump(self):
+        # jump only if standing on a platform
+        self.rect.y += 2
+        hits = pg.sprite.spritecollide(self, self.game.all_walls, False)
+        self.rect.y -= 2
+        if hits and not self.jumping:
+            self.game.jump_sound.play()
+            self.jumping = True
+            self.vel.y = -PLAYER_JUMP
+    
+    def is_jumping(self):
+        if self.vel.y > 0:
+            hits = pg.sprite.spritecollide(self, self.game.all_walls, False)
+            if hits:
+                self.jumping = False
 
+    def update(self):
+        self.animate()
+        self.is_jumping()
+        self.acc = vec(0,PLAYER_GRAV)
+        self.get_keys()
+        self.acc.x += self.vel.x * PLAYER_FRIC
+        self.acc.y += self.vel.y * PLAYER_FRIC
+        self.vel += self.acc
+        if abs(self.vel.x) < 0.1:
+            self.vel.x = 0
+        if abs(self.vel.y) < 0.1:
+            self.vel.y = 0
+        # self.rect.center = self.pos
+        self.pos += self.vel + 0.5 * self.acc
+        # self.pos += self.vel * self.game.dt + 0.5 * self.acc
+        # self.pos += self.vel * self.game.dt
         hits = pg.sprite.spritecollide(self, self.game.all_coins, True)
         if hits:
-            #adding 100 particles when player collides with a coin
-            for i in range(100):
-                Particle(self.game, self.pos.x, self.pos.y)
+            for i in range(25):
+                p = Particle(self.game, hits[0].pos.x, hits[0].pos.y)
             self.coins += 1
             self.game.pickup_snd.play()
             self.game.score += 1
-        self.animate()
-        self.rect.center = self.pos
-        self.pos += self.vel * self.game.dt
         self.hit_rect.centerx = self.pos.x
         collide_with_walls(self, self.game.all_walls, 'x')
         self.hit_rect.centery = self.pos.y
-        collide_with_walls(self, self.game.all_walls, 'y')
+        if collide_with_walls(self, self.game.all_walls, 'y'):
+            self.jumping = False
         self.rect.center = self.hit_rect.center
 
     
