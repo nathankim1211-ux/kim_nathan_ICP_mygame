@@ -108,7 +108,7 @@ class Player(Sprite):
                             ]
     #updating the player position and checking for collisions with walls and coins
     def jump(self):
-        # jump only if standing on a platform
+        # jump only if standing something
         self.rect.y += 2
         hits = pg.sprite.spritecollide(self, self.game.all_walls, False)
         self.rect.y -= 2
@@ -124,8 +124,11 @@ class Player(Sprite):
                 self.jumping = False
 
     def update(self):
+        #added animation
         self.animate()
+        #added jumping
         self.is_jumping()
+        #giving gravity so it constantly falls unless jumping
         self.acc = vec(0,PLAYER_GRAV)
         self.get_keys()
         self.acc.x += self.vel.x * PLAYER_FRIC
