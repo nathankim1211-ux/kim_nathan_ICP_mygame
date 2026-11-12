@@ -81,9 +81,9 @@ class Player(Sprite):
         if keys[pg.K_LEFT] or keys[pg.K_s]:
             self.acc.y = PLAYER_SPEED
         # check to see if player is moving diagonaly
-        if keys[pg.K_SPACE]:
-            self.jump()
-        if self.vel.x != 0 and self.vel.y != 0:
+        # if keys[pg.K_SPACE]:
+        #     self.jump()
+        # if self.vel.x != 0 and self.vel.y != 0:
             self.vel *= 0.7071
     def animate(self):
         # use the time element to get now
@@ -129,7 +129,7 @@ class Player(Sprite):
         #added jumping
         self.is_jumping()
         #giving gravity so it constantly falls unless jumping
-        self.acc = vec(0,PLAYER_GRAV)
+        self.acc = vec(0,0)
         self.get_keys()
         self.acc.x += self.vel.x * PLAYER_FRIC
         self.acc.y += self.vel.y * PLAYER_FRIC
@@ -220,12 +220,15 @@ class Particle(Sprite):
         self.rect.y = self.pos.y
 
 #makign floor class 1 and 2 for each to have their own sprite from the grass.png file
+#copied from wall and mob and took a bunch of code from them
+#also had do ask the CS50 to get the positioning for the grass.png
 class floor1(Sprite):
     def __init__(self, game, x, y):
         self.groups = game.all_sprites
         Sprite.__init__(self, self.groups)
         self.game = game
         self.image = pg.image.load(path.join(self.game.img_dir, "grass.png")).convert()
+        #got this line from CS50
         self.image = self.image.subsurface((0, 0, 32, 32))
         self.rect = self.image.get_rect()
         self.vx, self.vy = 0,0
@@ -239,6 +242,7 @@ class floor2(Sprite):
         self.groups = game.all_sprites
         Sprite.__init__(self, self.groups)
         self.game = game
+        #copied code from the mob
         self.image = pg.image.load(path.join(self.game.img_dir, "grass.png")).convert()
         self.image = self.image.subsurface((0, 32, 32, 32))
         self.rect = self.image.get_rect()
@@ -247,6 +251,22 @@ class floor2(Sprite):
         self.y = y*TILESIZE
         self.rect.x = self.x
         self.rect.y = self.y
+
+#copied wall, but changed color has no collision detection and is just the lake
+class Lake(Sprite):
+    def __init__(self, game, x, y):
+        self.groups = game.all_sprites,
+        Sprite.__init__(self, self.groups)
+        self.game = game
+        self.image = pg.Surface((TILESIZE, TILESIZE))
+        self.image.fill(BLUE)
+        self.rect = self.image.get_rect()
+        self.vx, self.vy = 0,0
+        self.x = x*TILESIZE
+        self.y = y*TILESIZE
+        self.rect.x = self.x
+        self.rect.y = self.y
+
 
 #making mob
 class Mob(Sprite):
@@ -331,4 +351,3 @@ class Mob(Sprite):
         self.hit_rect.centery = self.pos.y
         collide_with_walls(self, self.game.all_walls, 'y')
         self.rect.center = self.hit_rect.center
-        

@@ -90,6 +90,7 @@ class Game:
         self.all_mobs = pg.sprite.Group()
         self.all_particles = pg.sprite.Group()
         self.all_floors = pg.sprite.Group()
+        self.all_lakes = pg.sprite.Group()
 
     #enumerating the rows and columns of the map to create all of the walls, mobs, and coins
     #Adding floor as well
@@ -108,6 +109,9 @@ class Game:
                     Mob(self, col, row)
                 if tile == 'C':
                     Coin(self, col, row)
+                #added lake now
+                if tile == 'L':
+                    Lake(self, col, row)
         for row, tiles in enumerate(self.map.data):
             for col, tile, in enumerate(tiles):
                 if tile == 'P':
@@ -134,14 +138,14 @@ class Game:
                 if self.playing:
                     self.playing = False
                 self.running = False
-    #drawing text for fps and coin
-    def draw_text(self, text, size, color, x, y):
-        font_name = pg.font.match_font('arial')
-        font = pg.font.Font(font_name, size)
-        text_surface = font.render(text, True, color)
-        text_rect = text_surface.get_rect()
-        text_rect.midtop = (x,y)
-        self.screen.blit(text_surface, text_rect)
+    # #drawing text for fps and coin
+    # def draw_text(self, text, size, color, x, y):
+    #     font_name = pg.font.match_font('arial')
+    #     font = pg.font.Font(font_name, size)
+    #     text_surface = font.render(text, True, color)
+    #     text_rect = text_surface.get_rect()
+    #     text_rect.midtop = (x,y)
+    #     self.screen.blit(text_surface, text_rect)
     #updating the screen and all of the sprites
     def update(self):
         self.all_sprites.update()
@@ -151,13 +155,13 @@ class Game:
     def draw(self):
         # this order matters: the first things are on the bottom because they are the firs to be drawn
         # the last lines in this method are drawn on top or last
-        self.screen.fill(BGCOLOR)
+        self.screen.fill(GRASS_GREEN)
         self.all_sprites.draw(self.screen)
-        #text for the game
-        self.draw_text(f"Frames per second:{1/self.dt}", 24, WHITE, WIDTH/2, HEIGHT/4)
-        self.draw_text(f"Coins:{self.player.coins}", 24, WHITE, WIDTH/2, HEIGHT/7)
-        self.draw_text(f"Score:{self.score}", 24, WHITE, WIDTH/2, HEIGHT/8)
-        self.draw_text(f"High Score:{self.high_score}", 24, WHITE, WIDTH/2, HEIGHT/12)
+        # #text for the game
+        # self.draw_text(f"Frames per second:{1/self.dt}", 24, WHITE, WIDTH/2, HEIGHT/4)
+        # self.draw_text(f"Coins:{self.player.coins}", 24, WHITE, WIDTH/2, HEIGHT/7)
+        # self.draw_text(f"Score:{self.score}", 24, WHITE, WIDTH/2, HEIGHT/8)
+        # self.draw_text(f"High Score:{self.high_score}", 24, WHITE, WIDTH/2, HEIGHT/12)
         pg.display.flip()
 
 
