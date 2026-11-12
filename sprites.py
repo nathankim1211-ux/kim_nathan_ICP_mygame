@@ -145,7 +145,7 @@ class Player(Sprite):
         hits = pg.sprite.spritecollide(self, self.game.all_coins, True)
         if hits:
             for i in range(25):
-                p = Particle(self.game, hits[0].pos.x, hits[0].pos.y)
+                p = Particle(self.game, hits[0].rect.centerx, hits[0].rect.centery)
             self.coins += 1
             self.game.pickup_snd.play()
             self.game.score += 1
@@ -157,7 +157,7 @@ class Player(Sprite):
         self.rect.center = self.hit_rect.center
 
     
-# making class wall, coin, and mob
+# making class wall
 class Wall(Sprite):
     def __init__(self, game, x, y):
         self.groups = game.all_sprites, game.all_walls
@@ -174,12 +174,13 @@ class Wall(Sprite):
         # print("wall initialized")
         # print(self.rect.x)
         # print(self.rect.y)
-
+# class coin
 class Coin(Sprite):
     def __init__(self, game, x, y):
         self.groups = game.all_sprites, game.all_coins
         Sprite.__init__(self, self.groups)
         self.game = game
+        #size of coin
         self.image = pg.Surface((TILESIZE, TILESIZE))
         pg.draw.circle(self.image, YELLOW, (TILESIZE//2, TILESIZE//2), TILESIZE//2)
         self.rect = self.image.get_rect()
@@ -188,13 +189,14 @@ class Coin(Sprite):
         self.y = y*TILESIZE
         self.rect.x = self.x
         self.rect.y = self.y
-
+#making the particles for the coin
 class Particle(Sprite):
     def __init__(self, game, x, y):
         self.groups = game.all_sprites, game.all_particles
         Sprite.__init__(self, self.groups)
         self.game = game
         self.image = pg.Surface((5, 5))
+        #particle color
         self.image.fill(WHITE)
         self.rect = self.image.get_rect()
         self.rect.center = (x, y)
@@ -217,19 +219,49 @@ class Particle(Sprite):
         self.rect.x = self.pos.x
         self.rect.y = self.pos.y
 
+#makign floor class 1 and 2 for each to have their own sprite from the grass.png file
+class floor1(Sprite):
+    def __init__(self, game, x, y):
+        self.groups = game.all_sprites
+        Sprite.__init__(self, self.groups)
+        self.game = game
+        self.image = pg.image.load(path.join(self.game.img_dir, "grass.png")).convert()
+        self.image = self.image.subsurface((0, 0, 32, 32))
+        self.rect = self.image.get_rect()
+        self.vx, self.vy = 0,0
+        self.x = x*TILESIZE
+        self.y = y*TILESIZE
+        self.rect.x = self.x
+        self.rect.y = self.y
 
-        
+class floor2(Sprite):
+    def __init__(self, game, x, y):
+        self.groups = game.all_sprites
+        Sprite.__init__(self, self.groups)
+        self.game = game
+        self.image = pg.image.load(path.join(self.game.img_dir, "grass.png")).convert()
+        self.image = self.image.subsurface((0, 32, 32, 32))
+        self.rect = self.image.get_rect()
+        self.vx, self.vy = 0,0
+        self.x = x*TILESIZE
+        self.y = y*TILESIZE
+        self.rect.x = self.x
+        self.rect.y = self.y
+
+#making mob
 class Mob(Sprite):
     def __init__(self, game, x, y):
         self.groups = game.all_sprites, game.all_mobs
         Sprite.__init__(self, self.groups)
         self.game = game
+        #loading from the spritesheet and adding in mob
         self.spritesheet = Spritesheet(path.join(self.game.img_dir, "sprite_sheet.png"))
         self.load_images()
         self.image = pg.Surface((TILESIZE, TILESIZE))
         self.image = self.spritesheet.get_image(0,0,TILESIZE, TILESIZE)
         # self.image.fill(RED)
         self.rect = self.image.get_rect()
+        #speed for mob
         self.speed = 80
         self.vel = vec(0,0)
         self.pos = vec(x*TILESIZE,y*TILESIZE)
@@ -241,6 +273,7 @@ class Mob(Sprite):
         self.last_update = 0
         self.current_frame = 0
         self.hit_rect = MOB_HIT_RECT
+        #debugging to see for mob and if it spawns or not
         print("mob initialized")
         print(self.rect.x)
         print(self.rect.y)
@@ -252,6 +285,7 @@ class Mob(Sprite):
             self.run_frames = [self.spritesheet.get_image(0,0,TILESIZE, TILESIZE),
                                 self.spritesheet.get_image(TILESIZE,0,TILESIZE, TILESIZE)
                                 ]    
+    #animation for mob
     def animate(self):
             # use the time element to get now
             now = pg.time.get_ticks()
@@ -268,6 +302,7 @@ class Mob(Sprite):
                 pass
 
     # uses autocpomplete to fill in the rest of the code for the update method
+    #chasing the player with the mob
     def chase(self, obj):
         if self.pos.x < obj.pos.x:
             self.vel.x = self.speed

@@ -89,14 +89,22 @@ class Game:
         self.all_coins = pg.sprite.Group()
         self.all_mobs = pg.sprite.Group()
         self.all_particles = pg.sprite.Group()
-
+        self.all_floors = pg.sprite.Group()
 
     #enumerating the rows and columns of the map to create all of the walls, mobs, and coins
+    #Adding floor as well
+        for row, tiles in enumerate(self.map.data):
+                    for col, tile, in enumerate(tiles):
+                        if tile == '.':
+                            floor1(self, col, row)
+                        if tile == 'G':
+                            floor2(self, col, row)
+
         for row, tiles in enumerate(self.map.data):
             for col, tile, in enumerate(tiles):
                 if tile == '1':
                     Wall(self, col, row)
-                if tile == 'M':
+                if tile == ';':
                     Mob(self, col, row)
                 if tile == 'C':
                     Coin(self, col, row)
@@ -104,11 +112,13 @@ class Game:
             for col, tile, in enumerate(tiles):
                 if tile == 'P':
                     self.player = Player(self, col, row)
+
         pg.mixer.music.load(path.join(self.snd_dir, "bg.mp3"))
         pg.mixer.music.play(loops=-1)
     def run(self):
         self.playing = True
         while self.playing:
+            #adding a clock to later use for the game
             self.dt = self.clock.tick(FPS) / 1000
             self.events()
             self.update()
@@ -143,6 +153,7 @@ class Game:
         # the last lines in this method are drawn on top or last
         self.screen.fill(BGCOLOR)
         self.all_sprites.draw(self.screen)
+        #text for the game
         self.draw_text(f"Frames per second:{1/self.dt}", 24, WHITE, WIDTH/2, HEIGHT/4)
         self.draw_text(f"Coins:{self.player.coins}", 24, WHITE, WIDTH/2, HEIGHT/7)
         self.draw_text(f"Score:{self.score}", 24, WHITE, WIDTH/2, HEIGHT/8)
