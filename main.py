@@ -91,6 +91,8 @@ class Game:
         self.all_particles = pg.sprite.Group()
         self.all_floors = pg.sprite.Group()
         self.all_lakes = pg.sprite.Group()
+        self.all_merchants = pg.sprite.Group()
+        self.all_houses = pg.sprite.Group()
 
     #enumerating the rows and columns of the map to create all of the walls, mobs, and coins
     #Adding floor as well
@@ -112,13 +114,25 @@ class Game:
                 #added lake now
                 if tile == 'L':
                     Lake(self, col, row)
+                if tile == 'M':
+                    Merchant(self, col, row)
+                if tile == 'H':
+                    house(self, col, row)
+                    
         for row, tiles in enumerate(self.map.data):
             for col, tile, in enumerate(tiles):
                 if tile == 'P':
                     self.player = Player(self, col, row)
-
+        
         pg.mixer.music.load(path.join(self.snd_dir, "bg.mp3"))
         pg.mixer.music.play(loops=-1)
+
+    def can_fish(self):
+        for lake in self.all_lakes:
+            if lake.rect.inflate(TILESIZE * 2, TILESIZE * 2).colliderect(self.player.rect):
+                return True
+        return False
+    
     def run(self):
         self.playing = True
         while self.playing:
@@ -128,9 +142,17 @@ class Game:
             self.update()
             self.draw()
 
-    #seeing if the user has quit the game or not
+    #seeing if the user has quit the game or not as well as if the user has pressed the f key to fish and are near a lake
     def events(self):
         for event in pg.event.get():
+
+            if event.type == pg.KEYDOWN:
+                if event.key == pg.K_f:
+                    if self.can_fish():
+                        print("You can fish here!")
+                    else:
+                        print("You need to be near a lake!")
+
             if event.type == pg.QUIT:
                 with open(path.join(self.game_dir, self.game_save_file), 'w') as f:
                     f.write(str(self.score))

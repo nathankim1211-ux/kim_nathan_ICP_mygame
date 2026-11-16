@@ -255,7 +255,8 @@ class floor2(Sprite):
 #copied wall, but changed color has no collision detection and is just the lake
 class Lake(Sprite):
     def __init__(self, game, x, y):
-        self.groups = game.all_sprites,
+        #allows the player to actually detect the lake
+        self.groups = game.all_sprites, game.all_lakes
         Sprite.__init__(self, self.groups)
         self.game = game
         self.image = pg.Surface((TILESIZE, TILESIZE))
@@ -267,7 +268,143 @@ class Lake(Sprite):
         self.rect.x = self.x
         self.rect.y = self.y
 
+#Copied base for merchant from wall and lake and floor for the sprite to show up
 
+class Merchant(Sprite):
+    def __init__(self, game, x, y):
+        self.groups = game.all_sprites,
+        Sprite.__init__(self, self.groups)
+        self.game = game
+        #new code from chatgpt asking to help make the backround of the sprite into the same color
+        self.image = pg.image.load(path.join(self.game.img_dir, "merchant.png")).convert_alpha()
+        self.image = self.image.subsurface((0, 0, 32, 32))
+        self.rect = self.image.get_rect()
+        self.vx, self.vy = 0,0
+        self.x = x*TILESIZE
+        self.y = y*TILESIZE
+        self.rect.x = self.x
+        self.rect.y = self.y
+
+
+# got the code from wall just changed how it looks like, and also made it have collision detection
+class house(Sprite):
+    def __init__(self, game, x, y):
+        self.groups = game.all_sprites, game.all_walls
+        Sprite.__init__(self, self.groups)
+        self.game = game
+        self.image = pg.Surface((TILESIZE, TILESIZE))
+        self.image.fill(BROWN)
+        self.rect = self.image.get_rect()
+        self.vx, self.vy = 0,0
+        self.x = x*TILESIZE
+        self.y = y*TILESIZE
+        self.rect.x = self.x
+        self.rect.y = self.y
+
+#added fish class which is the main part of the game and made it have special effects from random and chances from 1-100
+class Fish:
+    def __init__(self, name):
+        #determining the rarity of the fish based on a random number between 1 and 100
+        number = randint(1, 1000)
+        type = randint(1, 5)
+
+        if number <= 100:
+            self.rarity = "common"
+            if type == 1:
+                self.name = "Salmon"
+            if type == 2:
+                self.name = "Trout"
+            if type == 3:
+                self.name = "Bass"
+            if type == 4:
+                self.name = "Catfish"
+            if type == 5:
+                self.name = "Pike"
+        elif number <= 800:
+            self.rarity = "uncommon"
+            if type == 1:
+                self.name = "Rainbow Trout"
+            if type == 2:
+                self.name = "Walleye"
+            if type == 3:
+                self.name = "Perch"
+            if type == 4:
+                self.name = "Bluegill"
+            if type == 5:
+                self.name = "Crappie"
+        elif number <= 950:
+            self.rarity = "rare"
+            if type == 1:
+                self.name = "Sturgeon"
+            if type == 2:
+                self.name = "Muskellunge"
+            if type == 3:
+                self.name = "Jellyfish"
+            if type == 4:
+                self.name = "Eel"
+            if type == 5:
+                self.name = "Swordfish"
+        elif number == 1000:
+            self.rarity = "impossible"
+            if type == 1:
+                self.name = "Mermaid"
+            if type == 2:
+                self.name = "Sea Serpent"
+            if type == 3:
+                self.name = "Alien???"
+            if type == 4:
+                self.name = "Godzilla???"
+            if type == 5:
+                self.name = "Fisherman???"
+        else:
+            self.rarity = "legendary"
+            if type == 1:
+                self.name = "Golden Trout"
+            if type == 2:
+                self.name = "Fish with gun"
+            if type == 3:
+                self.name = "Shark"
+            if type == 4:
+                self.name = "Whale"
+            if type == 5:
+                self.name = "Kraken"
+
+        self.weight = randint(1, 10)
+
+        effects = ["glowing", "poisonous", "electric", "frozen", "fiery", "radioactive", "mutated", "invisible", "ugly", "mogging", "agressive", "weird", "strong"]
+
+        special = randint(1, 1000)
+
+        if special <= 100:
+            self.traits = effects[randint(0, len(effects) - 1)]
+        elif special == 1000:
+            self.traits = "One shot"
+        else:
+            self.traits = "none"
+
+        self.name = name
+#another class to add a battle, basically a pokemon style battle system where the player can attack, special attack, use item, swap fish, and enemy turn
+class Battle:
+    def __init__(self, player, enemy):
+        self.player = player
+        self.enemy = enemy
+        self.turn = 0
+        self.swap_used = False
+
+    def attack(self):
+        pass
+
+    def special_attack(self):
+        pass
+
+    def use_item(self):
+        pass
+
+    def swap(self, fish):
+        pass
+
+    def enemy_turn(self):
+        pass
 #making mob
 class Mob(Sprite):
     def __init__(self, game, x, y):
