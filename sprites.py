@@ -78,7 +78,7 @@ class Player(Sprite):
             self.acc.x = PLAYER_SPEED
         if keys[pg.K_UP] or keys[pg.K_w]:
             self.acc.y = -PLAYER_SPEED
-        if keys[pg.K_LEFT] or keys[pg.K_s]:
+        if keys[pg.K_DOWN] or keys[pg.K_s]:
             self.acc.y = PLAYER_SPEED
         # check to see if player is moving diagonaly
         # if keys[pg.K_SPACE]:
@@ -303,7 +303,7 @@ class house(Sprite):
 
 #added fish class which is the main part of the game and made it have special effects from random and chances from 1-100
 class Fish:
-    def __init__(self, name):
+    def __init__(self):
         #determining the rarity of the fish based on a random number between 1 and 100
         number = randint(1, 1000)
         type = randint(1, 5)
@@ -371,6 +371,37 @@ class Fish:
 
         self.weight = randint(1, 10)
 
+        # base attack based on rarity
+        if self.rarity == "common":
+            base_attack = 10
+        elif self.rarity == "uncommon":
+            base_attack = 20
+        elif self.rarity == "rare":
+            base_attack = 35
+        elif self.rarity == "legendary":
+            base_attack = 50
+        elif self.rarity == "impossible":
+            base_attack = 100
+
+        # base health based on rarity
+        if self.rarity == "common":
+            base_health = 100
+        elif self.rarity == "uncommon":
+            base_health = 200
+        elif self.rarity == "rare":
+            base_health = 350
+        elif self.rarity == "legendary":
+            base_health = 500
+        elif self.rarity == "impossible":
+            base_health = 1000
+
+        self.health = base_health
+
+
+        #got this code from chatgpt to make the attack of the fish have a random variation of -20% to +20% of the base attack
+        variation = randint(-20, 20)
+        self.attack = int(base_attack * (1 + variation / 100))
+
         effects = ["glowing", "poisonous", "electric", "frozen", "fiery", "radioactive", "mutated", "invisible", "ugly", "mogging", "agressive", "weird", "strong"]
 
         special = randint(1, 1000)
@@ -382,29 +413,370 @@ class Fish:
         else:
             self.traits = "none"
 
+        self.crit_chance = 1
+
+    def deal_damage(self):
+        damage = self.attack
+
+        if randint(1, 100) == self.crit_chance:
+            damage = int(damage * 1.5)
+            print("CRITICAL HIT!")
+
+        return damage
+
+#added the attacks for the fish
+#I had to individually make each one and it took a while
+#also name them and each have different damage and accuracy based on the rarity of the fish and type of fish
+
+class Attack_1:
+    def __init__(self, fish):
+        attacks = {
+            "Salmon": ("Salmon Bite", 10, 90),
+            "Trout": ("Trout Tail", 15, 85),
+            "Bass": ("Bass Slam", 20, 80),
+            "Catfish": ("Catfish Whip", 25, 75),
+            "Pike": ("Pike Strike", 30, 70),
+
+            "Rainbow Trout": ("Rainbow Tail", 20, 90),
+            "Walleye": ("Walleye Bite", 25, 85),
+            "Perch": ("Perch Slam", 30, 80),
+            "Bluegill": ("Bluegill Whip", 35, 75),
+            "Crappie": ("Crappie Strike", 40, 70),
+
+            "Sturgeon": ("Sturgeon Tail", 30, 90),
+            "Muskellunge": ("Muskellunge Bite", 35, 85),
+            "Jellyfish": ("Jellyfish Slam", 40, 80),
+            "Eel": ("Eel Whip", 45, 75),
+            "Swordfish": ("Swordfish Strike", 50, 70),
+
+            "Golden Trout": ("Money", 50, 90),
+            "Fish with gun": ("Shoot", 55, 85),
+            "Shark": ("Shark Bite", 60, 80),
+            "Whale": ("Whale Slam", 65, 75),
+            "Kraken": ("Kraken Strike", 70, 70),
+
+            "Mermaid": ("Mermaid Sing", 100, 90),
+            "Sea Serpent": ("Sea Serpent Bite", 105, 85),
+            "Alien": ("Alien Laser", 110, 80),
+            "Godzilla": ("Godzilla Breath", 115, 75),
+            "Fisherman": ("Fisherman Hook", 120, 70)
+        }
+
+        self.name, self.damage, self.accuracy = attacks.get(
+            fish.name, ("Basic Bite", 10, 90)
+        )
+
+
+class Attack_2:
+    def __init__(self, fish):
+        attacks = {
+            "Salmon": ("River Splash", 15, 85),
+            "Trout": ("Rapid Current", 20, 80),
+            "Bass": ("Headbutt", 25, 75),
+            "Catfish": ("Whisker Hit", 30, 70),
+            "Pike": ("Lunge", 35, 65),
+
+            "Rainbow Trout": ("Rainbow Wave", 25, 85),
+            "Walleye": ("Big Hit", 30, 80),
+            "Perch": ("School Swarm", 35, 75),
+            "Bluegill": ("Fin Hit", 40, 70),
+            "Crappie": ("Water Burst", 45, 65),
+
+            "Sturgeon": ("Sturgeon Charge", 35, 85),
+            "Muskellunge": ("Eat and Bite", 40, 80),
+            "Jellyfish": ("Electric Shock", 45, 75),
+            "Eel": ("Lightning Shock", 50, 70),
+            "Swordfish": ("Pierce", 55, 65),
+
+            "Golden Trout": ("Golden Fortune", 60, 85),
+            "Fish with gun": ("Double Shot", 65, 80),
+            "Shark": ("Hungy Hungry Sharkie", 70, 75),
+            "Whale": ("Big Bellyflop", 75, 70),
+            "Kraken": ("Tentacle Crush", 80, 65),
+
+            "Mermaid": ("Siren's Bad Song", 110, 85),
+            "Sea Serpent": ("Big Chomp", 115, 80),
+            "Alien": ("Blow up", 120, 75),
+            "Godzilla": ("Big stomp", 125, 70),
+            "Fisherman": ("Fishing Boat", 130, 65)
+        }
+
+        self.name, self.damage, self.accuracy = attacks.get(
+            fish.name, ("Basic Splash", 15, 85)
+        )
+
+
+class Attack_3:
+    def __init__(self, fish):
+        attacks = {
+            "Salmon": ("Upstream", 25, 70),
+            "Trout": ("Crash Into", 30, 65),
+            "Bass": ("Play the Base", 35, 60),
+            "Catfish": ("Mudslide", 40, 55),
+            "Pike": ("Pike Spike", 45, 50),
+
+            "Rainbow Trout": ("Rain Bow", 35, 70),
+            "Walleye": ("Wall and an Eye", 40, 65),
+            "Perch": ("Fin", 45, 60),
+            "Bluegill": ("Blue Burst", 50, 55),
+            "Crappie": ("Really unusual Bite", 55, 50),
+
+            "Sturgeon": ("Perform Surgery", 45, 70),
+            "Muskellunge": ("Far Lunge", 50, 65),
+            "Jellyfish": ("Electric Eel", 55, 60),
+            "Eel": ("Electric Jellyfish", 60, 55),
+            "Swordfish": ("Ultimate Piercing", 65, 50),
+
+            "Golden Trout": ("Midas Touch", 70, 70),
+            "Fish with gun": ("Big shot", 75, 65),
+            "Shark": ("Jaws???", 80, 60),
+            "Whale": ("Eat the Fish", 85, 55),
+            "Kraken": ("Headbutt", 90, 50),
+
+            "Mermaid": ("A really good song", 120, 70),
+            "Sea Serpent": ("Eat itself", 125, 65),
+            "Alien": ("Planetary Annihilation", 130, 60),
+            "Godzilla": ("Fire a Missile", 135, 55),
+            "Fisherman": ("Catch the Fish", 140, 50)
+        }
+
+        self.name, self.damage, self.accuracy = attacks.get(
+            fish.name, ("Basic Crush", 25, 70)
+        )
+
+
+class Special_Attack:
+    def __init__(self, name, damage, accuracy, special_effect=None):
         self.name = name
+        self.damage = damage
+        self.accuracy = accuracy
+        self.special_effect = special_effect
+
 #another class to add a battle, basically a pokemon style battle system where the player can attack, special attack, use item, swap fish, and enemy turn
+#got majority of code from ChatGPT and then modified it as well as used a bunch of code I got myself
 class Battle:
-    def __init__(self, player, enemy):
+    def __init__(self, player, enemy, fish_collection=None):
+        # the two main entities for the battle
         self.player = player
         self.enemy = enemy
+
+        self.fish_collection = fish_collection if fish_collection else [player]
+
+        #first turn is the player turn, then enemy turn, then player turn, then enemy turn, etc
         self.turn = 0
+        self.special_ready = False
         self.swap_used = False
+        self.battle_over = False
 
-    def attack(self):
-        pass
+        # Creating the player's attacks
+        self.player_attacks = [
+            Attack_1(player),
+            Attack_2(player),
+            Attack_3(player)
+        ]
 
+        # Creating the enemy's attacks
+        self.enemy_attacks = [
+            Attack_1(enemy),
+            Attack_2(enemy),
+            Attack_3(enemy)
+        ]
+
+        # Items
+        self.potions = 3
+
+    # Counting player turns
+    def next_turn(self):
+        self.turn += 1
+        #getting ready for the special attack every 3 turns
+        if self.turn % 3 == 0:
+            self.special_ready = True
+            print("SPECIAL ATTACK READY!")
+
+    # Checking whether the battle has ended
+    def check_battle(self):
+        if self.enemy.health <= 0:
+            self.enemy.health = 0
+            self.battle_over = True
+            print(self.enemy.name, "has been defeated!")
+            print("YOU WON!")
+        #checking if the player has fainted and if they have another fish to swap to, if not then the player loses
+        elif self.player.health <= 0:
+            self.player.health = 0
+            self.battle_over = True
+            print(self.player.name, "has fainted!")
+
+            # Check if another fish is available
+            available = [
+                fish for fish in self.fish_collection
+                if fish.health > 0 and fish != self.player
+            ]
+
+            if available:
+                #choosing anotehr fish to swap to if the player has another fish
+                print("Choose another fish!")
+            else:
+                #lost the game if the player has no more fish to swap to
+                print("YOU LOST!")
+
+        return self.battle_over
+
+    # Calculating damage
+    def calculate_damage(self, attack, attacker):
+
+        if randint(1, 100) > attack.accuracy:
+            print("The attack missed!")
+            return 0
+
+        damage = attack.damage
+
+        # Critical hit
+        if randint(1, 100) == attacker.crit_chance:
+            damage = int(damage * 1.5)
+            print("CRITICAL HIT!")
+
+        return damage
+
+    # Player regular attack
+    def attack(self, attack_number):
+        if self.battle_over:
+            return
+
+        if attack_number < 1 or attack_number > 3:
+            print("Invalid attack!")
+            return
+
+        attack = self.player_attacks[attack_number - 1]
+
+        print(self.player.name, "used", attack.name)
+
+        damage = self.calculate_damage(attack, self.player)
+
+        self.enemy.health -= damage
+
+        print("Damage:", damage)
+        print("Enemy health:", max(0, self.enemy.health))
+
+        self.next_turn()
+        self.check_battle()
+
+        if not self.battle_over:
+            self.enemy_turn()
+
+    # Special attack
     def special_attack(self):
-        pass
+        if self.battle_over:
+            return
 
+        if not self.special_ready:
+            print("Special attack is not ready!")
+            return
+
+        self.special_ready = False
+
+        print(self.player.name, "used its SPECIAL ATTACK!")
+
+        # One Shot trait
+        if self.player.traits == "One shot":
+            damage = 1000000
+            print("ONE SHOT!")
+
+        else:
+            # Regular special attack damage
+            damage = int(self.player.attack * 3)
+
+        self.enemy.health -= damage
+
+        print("Special damage:", damage)
+        print("Enemy health:", max(0, self.enemy.health))
+
+        self.check_battle()
+
+        if not self.battle_over:
+            self.enemy_turn()
+
+    # Using items
     def use_item(self):
-        pass
+        if self.battle_over:
+            return
 
+        if self.potions <= 0:
+            print("You have no potions!")
+            return
+
+        if self.player.health >= 100:
+            print("Your fish does not need healing!")
+            return
+
+        self.potions -= 1
+
+        self.player.health += 50
+
+        if self.player.health > 100:
+            self.player.health = 100
+
+        print("Used a potion!")
+        print("Your health:", self.player.health)
+        print("Potions left:", self.potions)
+
+        self.next_turn()
+        self.enemy_turn()
+
+    # Swapping fish
     def swap(self, fish):
-        pass
+        if self.battle_over:
+            return
 
+        if self.swap_used:
+            print("You already swapped this battle!")
+            return
+
+        if fish not in self.fish_collection:
+            print("You do not own this fish!")
+            return
+
+        if fish.health <= 0:
+            print("This fish has fainted!")
+            return
+
+        if fish == self.player:
+            print("This fish is already battling!")
+            return
+
+        self.player = fish
+
+        self.player_attacks = [
+            Attack_1(fish),
+            Attack_2(fish),
+            Attack_3(fish)
+        ]
+
+        self.swap_used = True
+
+        print("Swapped to", fish.name)
+
+        self.next_turn()
+        self.enemy_turn()
+
+    # Enemy turn
     def enemy_turn(self):
-        pass
+        if self.battle_over:
+            return
+
+        # Randomly choosing one of the enemy's attacks
+        attack = self.enemy_attacks[randint(0, 2)]
+
+        print(self.enemy.name, "used", attack.name)
+
+        damage = self.calculate_damage(attack, self.enemy)
+
+        self.player.health -= damage
+
+        print("Damage taken:", damage)
+        print("Your health:", max(0, self.player.health))
+
+        self.check_battle()
+
 #making mob
 class Mob(Sprite):
     def __init__(self, game, x, y):
