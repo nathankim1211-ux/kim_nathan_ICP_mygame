@@ -57,6 +57,7 @@ class Player(Sprite):
         self.vel = vec(0,0)
         self.acc = vec(0,0)
         self.pos = vec(x*TILESIZE,y*TILESIZE)
+        self.spawn_pos = self.pos.copy()
         # animation stuff
         self.last_update = 0
         self.current_frame = 0
@@ -71,6 +72,13 @@ class Player(Sprite):
         # self.vel = vec(0,0)
         self.dir = "none"
         keys = pg.key.get_pressed()
+
+        # stop player movement while the merchant store is open
+        if self.game.shop_open:
+            self.acc = vec(0, 0)
+            self.vel = vec(0, 0)
+            return
+
         if keys[pg.K_LEFT] or keys[pg.K_a]:
             self.acc.x = -PLAYER_SPEED
         if keys[pg.K_RIGHT] or keys[pg.K_d]:
@@ -80,7 +88,13 @@ class Player(Sprite):
             self.acc.y = -PLAYER_SPEED
         if keys[pg.K_DOWN] or keys[pg.K_s]:
             self.acc.y = PLAYER_SPEED
-        # check to see if player is moving diagonaly
+        if keys[pg.K_p]:
+            self.pos = self.spawn_pos.copy()
+            self.vel = vec(0, 0)
+            self.acc = vec(0, 0)
+            self.hit_rect.center = self.pos
+            self.rect.center = self.pos
+            # check to see if player is moving diagonaly
         # if keys[pg.K_SPACE]:
         #     self.jump()
         # if self.vel.x != 0 and self.vel.y != 0:
@@ -272,7 +286,7 @@ class Lake(Sprite):
 
 class Merchant(Sprite):
     def __init__(self, game, x, y):
-        self.groups = game.all_sprites,
+        self.groups = game.all_sprites, game.all_merchants
         Sprite.__init__(self, self.groups)
         self.game = game
         #new code from chatgpt asking to help make the backround of the sprite into the same color
@@ -397,6 +411,18 @@ class Fish:
 
         self.health = base_health
 
+        # storing the maximum health for healing and catching calculations
+        self.max_health = base_health
+
+        # experience and leveling
+        self.level = 1
+        self.xp = 0
+        self.xp_to_next_level = 100
+
+        # evolution information
+        self.evolution_stage = 0
+        self.evolutions = []
+
 
         #got this code from chatgpt to make the attack of the fish have a random variation of -20% to +20% of the base attack
         variation = randint(-20, 20)
@@ -423,6 +449,23 @@ class Fish:
             print("CRITICAL HIT!")
 
         return damage
+    # giving the fish experience and leveling it up
+    def gain_xp(self, amount):
+        self.xp += amount
+
+        while self.xp >= self.xp_to_next_level:
+            self.xp -= self.xp_to_next_level
+            self.level += 1
+
+            # increasing fish stats when leveling up
+            self.max_health = int(self.max_health * 1.1)
+            self.attack += 2
+            self.health = self.max_health
+
+            # increasing the amount of xp needed for the next level
+            self.xp_to_next_level = int(self.xp_to_next_level * 1.25)
+
+            print(self.name, "reached level", self.level, "!")
 
 #added the attacks for the fish
 #I had to individually make each one and it took a while
@@ -535,7 +578,7 @@ class Attack_3:
 
             "Mermaid": ("A really good song", 120, 70),
             "Sea Serpent": ("Eat itself", 125, 65),
-            "Alien": ("Planetary Annihilation", 130, 60),
+            "Alien": ("A really big big bomb", 130, 60),
             "Godzilla": ("Fire a Missile", 135, 55),
             "Fisherman": ("Catch the Fish", 140, 50)
         }
@@ -546,16 +589,86 @@ class Attack_3:
 
 
 class Special_Attack:
-    def __init__(self, name, damage, accuracy, special_effect=None):
+    def __init__(self, name, damage, accuracy):
+        if self.fish.trait == "glowing":
+            self.name = "Glowing Strike"
+            self.fish.attack_1 += randint(10, 30)
+            self.accuracy = 80
+        if self.fish.trait == "poisonous":
+            self.name = "Poisonous Strike"
+            self.fish.attack_1 += randint(10, 30)
+            self.accuracy = 70
+        if self.fish.trait == "electric":
+            self.name = "Electric Strike"
+            self.fish.attack_1 += randint(10, 30)
+            self.accuracy = 75
+        if self.fish.trait == "frozen":
+            self.name = "Frozen Strike"
+            self.fish.attack_1 += randint(15, 30)
+            self.accuracy = 85
+        if self.fish.trait == "fiery":
+            self.name = "Fiery Strike"
+            self.fish.attack_1 += randint(25, 45)
+            self.accuracy = 65
+        if self.fish.trait == "radioactive":
+            self.name = "Radioactive Strike"
+            self.fish.attack_1 += randint(30, 50)
+            self.accuracy = 60
+        if self.fish.trait == "mutated":
+            self.name = "Mutated Strike"
+            self.fish.attack_1 += randint(40, 60)
+            self.accuracy = 55
+        if self.fish.trait == "invisible":
+            self.name = "Invisible Strike"
+            self.fish.attack_1 += randint(5, 15)
+            self.accuracy = 90
+        if self.fish.trait == "ugly":
+            self.name = "Ugly Strike"
+            self.fish.attack_1 += randint(1, 10)
+            self.accuracy = 95
+        if self.fish.trait == "mogging":
+            self.name = "Mogging Strike"
+            self.fish.attack_1 += randint(40, 50)
+            self.accuracy = 50
+        if self.fish.trait == "agressive":
+            self.name = "Agressive Strike"
+            self.fish.attack_1 += randint(10, 30)
+            self.accuracy = 80
+        if self.fish.trait == "weird":
+            self.name = "Weird Strike"
+            self.fish.attack_1 += randint(20, 40)
+            self.accuracy = 70
+        if self.fish.trait == "strong":
+            self.name = "Strong Strike"
+            self.fish.attack_1 += randint(30, 50)
+            self.accuracy = 60
+
+class Item:
+    def __init__(self, name, effect):
+        pass
+
+
+# creating a net that can be used to catch fish
+# basically the pokeball in pokemmon
+class Net:
+    def __init__(self, name="Basic Net", uses=10):
         self.name = name
-        self.damage = damage
-        self.accuracy = accuracy
-        self.special_effect = special_effect
+        self.uses = uses
+
+    # using one net attempt
+    def use(self):
+        if self.uses <= 0:
+            print("Your net is broken!")
+            return False
+
+        self.uses -= 1
+        return True
+
 
 #another class to add a battle, basically a pokemon style battle system where the player can attack, special attack, use item, swap fish, and enemy turn
 #got majority of code from ChatGPT and then modified it as well as used a bunch of code I got myself
 class Battle:
-    def __init__(self, player, enemy, fish_collection=None):
+    def __init__(self, player, enemy, fish_collection=None, net=None):
         # the two main entities for the battle
         self.player = player
         self.enemy = enemy
@@ -584,6 +697,9 @@ class Battle:
 
         # Items
         self.potions = 3
+
+        # using a net bought from the merchant when one is provided
+        self.net = net if net else Net()
 
     # Counting player turns
     def next_turn(self):
@@ -704,7 +820,7 @@ class Battle:
             print("You have no potions!")
             return
 
-        if self.player.health >= 100:
+        if self.player.health >= self.player.max_health:
             print("Your fish does not need healing!")
             return
 
@@ -712,8 +828,8 @@ class Battle:
 
         self.player.health += 50
 
-        if self.player.health > 100:
-            self.player.health = 100
+        if self.player.health > self.player.max_health:
+            self.player.health = self.player.max_health
 
         print("Used a potion!")
         print("Your health:", self.player.health)
@@ -758,6 +874,44 @@ class Battle:
         self.next_turn()
         self.enemy_turn()
 
+    def catch_fish(self):
+        if self.battle_over:
+            return
+
+        catch_chance = 50  # Base catch chance
+
+        # Modify catch chance based on enemy rarity
+        if self.enemy.rarity == "common":
+            catch_chance += 20
+        elif self.enemy.rarity == "uncommon":
+            catch_chance += 10
+        elif self.enemy.rarity == "rare":
+            catch_chance -= 10
+        elif self.enemy.rarity == "legendary":
+            catch_chance -= 20
+        elif self.enemy.rarity == "impossible":
+            catch_chance -= 30
+
+        # the fish must be below 10 percent health before it can be caught
+        if self.enemy.health < self.enemy.max_health * 0.1:
+
+            # using one net only when the fish is weak enough to catch
+            if not self.net.use():
+                return
+
+            if randint(1, 100) <= catch_chance:
+                print("You caught the", self.enemy.name + "!")
+                self.fish_collection.append(self.enemy)
+                self.battle_over = True
+            else:
+                print("The", self.enemy.name, "escaped!")
+                self.next_turn()
+                self.enemy_turn()
+        else:
+            print("The fish is too strong to catch! Lower its health first.")
+            self.next_turn()
+            self.enemy_turn()
+
     # Enemy turn
     def enemy_turn(self):
         if self.battle_over:
@@ -776,6 +930,7 @@ class Battle:
         print("Your health:", max(0, self.player.health))
 
         self.check_battle()
+
 
 #making mob
 class Mob(Sprite):

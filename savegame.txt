@@ -1,0 +1,1 @@
+{'coins': 0, 'score': 0, 'player_x': 608.0, 'player_y': 128.0, 'evolution_stones': 0, 'nets': [{'name': 'Basic Net', 'uses': 10}], 'fish': [{'name': 'Swordfish', 'rarity': 'rare', 'weight': 8, 'health': 350, 'max_health': 350, 'attack': 29, 'traits': 'none', 'level': 1, 'xp': 0, 'xp_to_next_level': 100, 'evolution_stage': 0, 'evolutions': [], 'crit_chance': 1}]}
